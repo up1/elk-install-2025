@@ -137,3 +137,53 @@ output {
     stdout { codec => rubydebug }
 }
 ```
+
+## 5. Filebeat
+* https://github.com/elastic/beats/tree/main/filebeat
+* https://www.elastic.co/beats/filebeat
+
+### Flow
+1. Read file with Filebeat
+   * Use [filestream](https://www.elastic.co/docs/reference/beats/filebeat/filebeat-input-filestream)
+2. Logstash pipeline
+   * input=beat
+   * output=stdout and elasticsearch
+
+### 5.1 Config and run pipeline in filebeat
+* file `filebeat.yml`
+```
+filebeat.inputs:
+ - type: filestream
+   enabled: true
+   id: my-java-collector
+   paths:
+    - /path/to/file/demo.log
+output.logstash:
+  hosts: ["localhost:5044"]
+```
+
+Run
+```
+./filebeat -e -c filebeat.yml -d "publish"
+```
+
+### 5.2 Pipeline in logstash
+```
+input {
+    beats {
+        port => "5044"
+    }
+}
+
+output {
+    elasticsearch {
+        hosts => ["https://127.0.0.1:9200"]
+        index => "hello-logstash"
+        ssl_enabled => true
+        user => "elastic"
+        password => "vT*2WBHG+TGonr9YdzST"
+        ssl_certificate_authorities => 'http_ca.crt' # Cert from ES
+    }
+    stdout { codec => rubydebug }
+}
+```
