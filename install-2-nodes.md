@@ -85,3 +85,55 @@ bin/kibana
 
 Go to kibana
 * http://localhost:5601/
+
+
+## 4. Logstash
+* https://www.elastic.co/docs/reference/logstash/installing-logstash
+* https://www.elastic.co/docs/reference/logstash/first-event
+* https://www.elastic.co/docs/reference/logstash/advanced-pipeline
+
+Create first pipeline = hello-pipeline.conf
+```
+input {
+    stdin {}
+}
+# The filter part of this file is commented out to indicate that it is
+# optional.
+# filter {
+#
+# }
+
+output {
+    stdout { codec => rubydebug }
+}
+```
+
+Start logstash
+```
+bin/logstash -f hello-pipeline.conf 
+```
+
+Health check
+* http://localhost:9600/
+
+
+Output to Elasticsearch
+* https://www.elastic.co/docs/reference/logstash/plugins/output-plugins
+* https://www.elastic.co/docs/reference/fleet/secure-logstash-connections
+```
+input {
+    stdin {}
+}
+
+output {
+    elasticsearch {
+        hosts => ["https://127.0.0.1:9200"]
+        index => "hello-logstash"
+        ssl_enabled => true
+        user => "elastic"
+        password => "vT*2WBHG+TGonr9YdzST"
+        ssl_certificate_authorities => 'http_ca.crt' # Cert from ES
+    }
+    stdout { codec => rubydebug }
+}
+```
